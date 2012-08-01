@@ -62,6 +62,17 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".FMWidgetProvider"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.motorola.fmradio.ACTION_WIDGET_REDUCE" />
+                <action android:name="com.motorola.fmradio.ACTION_WIDGET_ADD" />
+                <action android:name="com.motorola.fmradio.ACTION_WIDGET_QUIT" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/fm_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

@@ -29,7 +29,7 @@
         <TextView
             android:id="@+id/status_bar_artist_name"
             style="@style/StatusBarText"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"  />
     </LinearLayout>
 
     <ImageButton

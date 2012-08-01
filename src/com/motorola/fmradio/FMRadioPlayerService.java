@@ -42,6 +42,7 @@ public class FMRadioPlayerService extends Service {
     public static final String COMMAND_NEXT = "next";
     public static final String COMMAND_PREV = "prev";
     public static final String COMMAND_STOP = "stop";
+    public static final String COMMAND_UPDATE = "update";
 
     public static int FM_ROUTING_HEADSET = 0;
     public static int FM_ROUTING_SPEAKER = 1;
@@ -581,13 +582,7 @@ public class FMRadioPlayerService extends Service {
 
     private CharSequence getRdsText() {
         StringBuilder rdsText = new StringBuilder();
-        if (!TextUtils.isEmpty(mRdsStationName)) {
-            rdsText.append(mRdsStationName);
-        }
         if (!TextUtils.isEmpty(mRdsRadioText)) {
-            if (rdsText.length() > 0) {
-                rdsText.append(FMRadioMain.RDS_TEXT_SEPARATOR);
-            }
             rdsText.append(mRdsRadioText);
         }
         if (mRdsPTYValue >= 0 && mRdsPTYValue < FMRadioMain.PTY_STRINGS.length) {
@@ -599,10 +594,13 @@ public class FMRadioPlayerService extends Service {
                 rdsText.append(getString(resId));
             }
         }
-        if (rdsText.length() > 0) {
-            rdsText.append(" : ");
-        }
-        rdsText.append(FMUtil.formatFrequency(this, mCurFreq));
+        Cursor cursor = getCurrentPresetCursor();
+        if ((cursor != null && cursor.moveToFirst()) | !TextUtils.isEmpty(mRdsStationName)) {
+            if (rdsText.length() > 0) {
+                rdsText.append(" : ");
+            }
+            rdsText.append(FMUtil.formatFrequency(this, mCurFreq));
+            }
         return rdsText.toString();
     }
 
@@ -610,8 +608,10 @@ public class FMRadioPlayerService extends Service {
         Cursor cursor = getCurrentPresetCursor();
         if (cursor != null && cursor.moveToFirst()) {
             return FMUtil.getPresetListString(this, cursor);
+        } else if (!TextUtils.isEmpty(mRdsStationName)) {
+            return mRdsStationName;
         } else {
-            return getString(R.string.untitled);
+            return FMUtil.formatFrequency(this, mCurFreq);
         }
     }
 
@@ -619,6 +619,7 @@ public class FMRadioPlayerService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy()");
         super.onDestroy();
+        scheduleShutdown();
         shutdownFM();
         restoreAudioRoute();
         mHandler.removeCallbacksAndMessages(null);
@@ -659,6 +660,7 @@ public class FMRadioPlayerService extends Service {
 
         if (intent != null && TextUtils.equals(intent.getAction(), ACTION_FM_COMMAND) && mReady) {
             String command = intent.getStringExtra(EXTRA_COMMAND);
+            Log.d(TAG, "onStartCommand(), command = " + command);
             if (COMMAND_TOGGLE_MUTE.equals(command)) {
                 setFMMuteState(!mMuted);
                 updateStateIndicators();
@@ -668,6 +670,8 @@ public class FMRadioPlayerService extends Service {
                 handlePrevNextButton(false);
             } else if (COMMAND_STOP.equals(command)) {
                 stopSelf(mServiceStartId);
+            } else if (COMMAND_UPDATE.equals(command)) {
+                updateStateIndicators();
             }
         }
 
@@ -727,11 +731,17 @@ public class FMRadioPlayerService extends Service {
             restoreAudioRoute();
         }
 
+        /*Send update action to widget*/
+        Intent intent=new Intent(getApplicationContext(),FMWidgetProvider.class);
+        intent.setAction(FMWidgetProvider.ACTION_UPDATE);
+        intent.putExtra("Station",getCurrentStationName());
+        intent.putExtra("Rds",getRdsText());
+        intent.putExtra("CurFreq",-1);
+        sendBroadcast(intent);
         stopForeground(true);
         updateFmStateBroadcast(false);
         updateMusicMetadata(null, null, false);
         notifyEnableChangeComplete(false, true);
-        scheduleShutdown();
     }
 
     private void scheduleShutdown() {
@@ -942,6 +952,13 @@ public class FMRadioPlayerService extends Service {
 
         /* TODO: add hint if muted? */
         updateStatus();
+
+        Intent intent=new Intent(getApplicationContext(),FMWidgetProvider.class);
+        intent.setAction(FMWidgetProvider.ACTION_UPDATE);
+        intent.putExtra("Station",getCurrentStationName());
+        intent.putExtra("Rds",getRdsText());
+        intent.putExtra("CurFreq",mCurFreq);
+        sendBroadcast(intent);
 
         updateFmStateBroadcast(true);
 
