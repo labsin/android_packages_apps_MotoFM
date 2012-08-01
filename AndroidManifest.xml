@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="com.motorola.fmradio">
+        
+     <uses-sdk
+            android:minSdkVersion="15"
+            android:targetSdkVersion="15" />
 
     <uses-permission android:name="com.motorola.android.permission.USEFMRADIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -57,7 +61,17 @@
             </intent-filter>
 
         </receiver>
-
+        <receiver
+            android:name=".FMWidgetProvider"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.motorola.fmradio.ACTION_WIDGET_REDUCE" />
+                <action android:name="com.motorola.fmradio.ACTION_WIDGET_ADD" />
+                <action android:name="com.motorola.fmradio.ACTION_WIDGET_QUIT" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/fm_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

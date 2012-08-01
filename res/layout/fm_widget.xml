@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/widget_top_height"
+        android:paddingRight="8dp">
+
+        <ImageView
+            android:id="@+id/widget_icon"
+            android:layout_width="@dimen/widget_icon"
+            android:layout_height="match_parent"
+            android:src="@drawable/fm_statusbar_icon"
+            android:scaleType="center" />
+
+        <TextView
+            android:id="@+id/widget_station"
+            style="@style/WidgetText"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:text="@string/start"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="@dimen/text_size_big" >
+
+            <requestFocus
+                android:layout_width="fill_parent"
+                android:duplicateParentState="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true" />
+
+        </TextView>
+        <ImageButton
+            android:id="@+id/widget_previous"
+            style="@style/WidgetButton"
+            android:src="@drawable/fm_holo_dark_previous" />
+        <ImageButton
+            android:id="@+id/widget_next"
+            style="@style/WidgetButton"
+            android:src="@drawable/fm_holo_dark_next" />
+        <ImageButton
+            android:id="@+id/widget_collapse"
+            style="@style/WidgetButton"
+            android:src="@drawable/fm_holo_dark_notifiation_bar_collapse" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
+
+    <TextView
+        android:id="@+id/widget_rds"
+        style="@style/WidgetText"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/no_rss" />
+
+</LinearLayout>

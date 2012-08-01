@@ -125,7 +125,7 @@ public class FMRadioMain extends ListActivity implements SeekBar.OnSeekBarChange
         R.drawable.fm_playing_list_6, R.drawable.fm_playing_list_7,
         R.drawable.fm_playing_list_8, R.drawable.fm_playing_list_9
     };
-    private static final int[] PTY_STRINGS = new int[] {
+    static final int[] PTY_STRINGS = new int[] {
         0,                       R.string.fm_pty_list_01, R.string.fm_pty_list_02,
         R.string.fm_pty_list_03, R.string.fm_pty_list_04, R.string.fm_pty_list_05,
         R.string.fm_pty_list_06, R.string.fm_pty_list_07, R.string.fm_pty_list_08,

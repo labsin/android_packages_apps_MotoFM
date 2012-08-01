@@ -2,6 +2,7 @@
 <resources>
 
     <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_big">25sp</dimen>
     <dimen name="listview_item_height">64dp</dimen>
     <dimen name="listview_peak_meter_one_padding_right">80dp</dimen>
     <dimen name="listview_peak_meter_two_padding_right">70dp</dimen>
@@ -26,4 +27,8 @@
     <dimen name="status_bar_icon">64dp</dimen>
     <dimen name="status_bar_button_info_container_padding_left">11dp</dimen>
 
+    <!-- Widget button -->
+    <dimen name="widget_button_width">44dp</dimen>
+    <dimen name="widget_top_height">54dp</dimen>
+    <dimen name="widget_icon">48dp</dimen>
 </resources>

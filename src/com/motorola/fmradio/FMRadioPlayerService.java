@@ -41,6 +41,7 @@ public class FMRadioPlayerService extends Service {
     public static final String COMMAND_NEXT = "next";
     public static final String COMMAND_PREV = "prev";
     public static final String COMMAND_STOP = "stop";
+    public static final String COMMAND_UPDATE = "update";
 
     public static int FM_ROUTING_HEADSET = 0;
     public static int FM_ROUTING_SPEAKER = 1;
@@ -608,6 +609,7 @@ public class FMRadioPlayerService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy()");
         super.onDestroy();
+        scheduleShutdown();
         shutdownFM();
         restoreAudioRoute();
         mHandler.removeCallbacksAndMessages(null);
@@ -658,6 +660,8 @@ public class FMRadioPlayerService extends Service {
                 handlePrevNextButton(false);
             } else if (COMMAND_STOP.equals(command)) {
                 shutdownFM();
+            } else if (COMMAND_UPDATE.equals(command)) {
+                updateStateIndicators();
             }
         }
 
@@ -720,11 +724,15 @@ public class FMRadioPlayerService extends Service {
             transitionToState(State.POWERDOWN);
         }
 
+        /*Send update action to widget*/
+        Intent intent=new Intent(getApplicationContext(),FMWidgetProvider.class);
+        intent.setAction(FMWidgetProvider.ACTION_UPDATE);
+        intent.putExtra("CurFreq",-1);
+        sendBroadcast(intent);
         stopForeground(true);
         updateFmStateBroadcast(false);
         updateRemoteControl(null, null, false);
         notifyEnableChangeComplete(false, true);
-        scheduleShutdown();
     }
 
     private void scheduleShutdown() {
@@ -934,6 +942,28 @@ public class FMRadioPlayerService extends Service {
         if (stationName == null && !TextUtils.isEmpty(mRdsStationName)) {
             stationName = mRdsStationName;
         }
+        
+        StringBuilder rdsText = new StringBuilder();
+        if (stationName != null) {
+            rdsText.append(frequencyString);
+        }
+        if (!TextUtils.isEmpty(mRdsRadioText)) {
+            if (rdsText.length() > 0) {
+                rdsText.append(FMRadioMain.RDS_TEXT_SEPARATOR);
+            }
+            rdsText.append(mRdsRadioText);
+        } 
+        if (mRdsPTYValue >= 0 && mRdsPTYValue < FMRadioMain.PTY_STRINGS.length) {
+            int resId = FMRadioMain.PTY_STRINGS[mRdsPTYValue];
+            if (resId != 0) {
+                if (rdsText.length() > 0) {
+                    rdsText.append(FMRadioMain.RDS_TEXT_SEPARATOR);
+                }
+                rdsText.append(getString(resId));
+            }
+        }
+        
+        
 
         /* TODO: add hint if muted? */
         RemoteViews views = buildNotificationViews();
@@ -942,6 +972,13 @@ public class FMRadioPlayerService extends Service {
         views.setTextViewText(R.id.status_bar_artist_name,
                 stationName != null ? frequencyString : "");
         startForeground(R.string.app_name, mNotification);
+
+        Intent intent=new Intent(getApplicationContext(),FMWidgetProvider.class);
+        intent.setAction(FMWidgetProvider.ACTION_UPDATE);
+        intent.putExtra("Station", stationName != null ? stationName : frequencyString);
+        intent.putExtra("Rds", rdsText.toString());
+        intent.putExtra("CurFreq",mCurFreq);
+        sendBroadcast(intent);
 
         updateFmStateBroadcast(true);
 
