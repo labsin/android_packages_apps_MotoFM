@@ -60,7 +60,6 @@
     <TextView
         android:id="@+id/widget_rds"
         style="@style/WidgetText"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="@string/no_rss" />
+        android:textAppearance="?android:attr/textAppearanceSmall"/>
 
 </LinearLayout>

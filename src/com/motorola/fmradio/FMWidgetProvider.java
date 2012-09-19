@@ -14,17 +14,26 @@ import android.widget.RemoteViews;
 
 public class FMWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "FMWidgetProvider";
-    public static final String ACTION_UPDATE = "Update";
+    public static final String ACTION_UPDATE = "UpdateFM";
+    public static final String ACTION_SHUTDOWN = "Shutdown";
+    public static final String NO_RSS = "--";
     private RemoteViews mWidgetView;
 
     private String mStationName;
     private String mRds;
-    private int mFreq = -1;
+    private int mFreq = 0;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action.equals(ACTION_UPDATE)) {
+        if (action.equals(ACTION_SHUTDOWN)) {
+            Log.i(TAG, "onRecieve " + action);
+            mFreq = 0;
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            ComponentName thisAppWidget = new ComponentName(context.getPackageName(), FMWidgetProvider.class.getName());
+            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
+            onUpdate(context, appWidgetManager, appWidgetIds);
+        } else if (action.equals(ACTION_UPDATE)) {
             mStationName = intent.getStringExtra("Station");
             mRds = intent.getStringExtra("Rds");
             if(intent.getIntExtra("CurFreq", 0)==0) {
@@ -49,7 +58,7 @@ public class FMWidgetProvider extends AppWidgetProvider {
         
         boolean isRunning = isMyServiceRunning(context);
 
-        if(isRunning && (mFreq == -1)) {
+        if(isRunning && (mFreq == 0)) {
             Intent i = new Intent(context, FMRadioPlayerService.class);
             i.setAction(FMRadioPlayerService.ACTION_FM_COMMAND);
             i.putExtra(FMRadioPlayerService.EXTRA_COMMAND, FMRadioPlayerService.COMMAND_UPDATE);
@@ -81,9 +90,9 @@ public class FMWidgetProvider extends AppWidgetProvider {
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,    launchIntent, 0);
             mWidgetView.setOnClickPendingIntent(R.id.widget_station, pendingIntent);
             mWidgetView.setOnClickPendingIntent(R.id.widget_icon, pendingIntent);
-            if (mFreq == -1) {
+            if (mFreq == 0) {
                 mWidgetView.setTextViewText(R.id.widget_station, context.getString(R.string.start));
-                mWidgetView.setTextViewText(R.id.widget_rds, context.getString(R.string.no_rss));
+                mWidgetView.setTextViewText(R.id.widget_rds, NO_RSS);
             }
             else {
                 mWidgetView.setTextViewText(R.id.widget_station, mStationName);
@@ -113,5 +122,4 @@ public class FMWidgetProvider extends AppWidgetProvider {
         }
         return false;
     }
-
 }

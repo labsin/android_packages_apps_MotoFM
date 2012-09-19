@@ -609,7 +609,6 @@ public class FMRadioPlayerService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy()");
         super.onDestroy();
-        scheduleShutdown();
         shutdownFM();
         restoreAudioRoute();
         mHandler.removeCallbacksAndMessages(null);
@@ -726,9 +725,9 @@ public class FMRadioPlayerService extends Service {
 
         /*Send update action to widget*/
         Intent intent=new Intent(getApplicationContext(),FMWidgetProvider.class);
-        intent.setAction(FMWidgetProvider.ACTION_UPDATE);
-        intent.putExtra("CurFreq",-1);
+        intent.setAction(FMWidgetProvider.ACTION_SHUTDOWN);
         sendBroadcast(intent);
+
         stopForeground(true);
         updateFmStateBroadcast(false);
         updateRemoteControl(null, null, false);
@@ -962,8 +961,9 @@ public class FMRadioPlayerService extends Service {
                 rdsText.append(getString(resId));
             }
         }
-        
-        
+        if (rdsText.length() == 0) {
+            rdsText.append(FMWidgetProvider.NO_RSS);
+        }
 
         /* TODO: add hint if muted? */
         RemoteViews views = buildNotificationViews();
